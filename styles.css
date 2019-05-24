@@ -1,0 +1,15 @@
+html, body{
+	height:100%;
+	width:100%;
+	padding: 0px;
+}
+
+#container{
+	/*height: 70%;
+	width: 70%;*/
+	/*border: 10px solid black;*/
+	/*position: relative;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);*/
+}
