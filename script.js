@@ -30,8 +30,8 @@ var touchLog = {
 };
 
 options.canvas = {
-    h: 360,
-    w: 640,
+    h: window.innerHeight*0.8,
+    w: window.innerWidth*0.8,
     border: 10,
 }
 
@@ -46,17 +46,18 @@ options.canvas.draw = function (context) {
 options.box = {
     x: options.canvas.border,
     y: options.canvas.border,
-    h: 25,
-    w: 25,
+    h: 100,
+    w: 100,
     fillStyle: '#ff9933',
     min: {
         x: options.canvas.border,
         y: options.canvas.border
     },
     max: {
-        x: options.canvas.w - (options.canvas.border + 25),
-        y: options.canvas.h - (options.canvas.border + 25)
+        x: options.canvas.w - (options.canvas.border + 100),
+        y: options.canvas.h - (options.canvas.border + 100)
     },
+    moveBy : 25
 }
 
 options.box.draw = function (context) {
@@ -80,16 +81,16 @@ addListeners();
 function addListeners()
 {
 	document.addEventListener("keydown", _handleKeyDown);
-	document.addEventListener("touchstart", _handleTouchStart);
-	document.addEventListener("touchend", _handleTouchEnd);
-	document.addEventListener("touchcancel", _handleTouchEnd);
-	document.addEventListener("touchmove", _handleTouchMove);
+	canvas.addEventListener("touchstart", _handleTouchStart);
+	canvas.addEventListener("touchend", _handleTouchEnd);
+	canvas.addEventListener("touchcancel", _handleTouchEnd);
+	canvas.addEventListener("touchmove", _handleTouchMove);
 }
 
 
 function move(direction, options) {
     var action = actionMap[direction];
-    var distance = 5;
+    var distance = options.moveBy;
     var toMove = {
         x: options.x,
         y: options.y
@@ -150,6 +151,7 @@ function _handleKeyDown(event) {
         event.preventDefault();
         move(direction, options.box);
         compositior(context, layers, options);
+        _drawDirectionText(context, direction);
     }
 }
 
@@ -159,12 +161,20 @@ function _handleTouchStart(event) {
     touchLog.start.x = event.touches[0].pageX;
     touchLog.start.y = event.touches[0].pageY;
     touchLog.moveFlag = false;
+    touchLog.preventPullDownRefresh = window.pageYOffset == 0;
 }
 
 function _handleTouchMove(event) {
     var d = "";
     touchLog.move.x = event.touches[0].pageX - touchLog.start.x;
     touchLog.move.y = event.touches[0].pageY - touchLog.start.y;
+    if (touchLog.preventPullDownRefresh) {
+        // To suppress pull-to-refresh it is sufficient to preventDefault the first overscrolling touchmove.
+        touchLog.preventPullDownRefresh = false;
+        if (touchLog.move.y > 0) {
+            event.preventDefault();
+        }
+    }
     var xFlag = (Math.abs(touchLog.move.x) > Math.abs(touchLog.move.y));
     if (Math.abs(touchLog.move.x) > 30 || Math.abs(touchLog.move.y) > 30) {
         touchLog.moveFlag = true;
@@ -191,6 +201,7 @@ function _handleTouchMove(event) {
         // move callback
         move(d, options.box);
         compositior(context, layers, options);
+        _drawDirectionText(context, d);
     }
 
 }
@@ -206,4 +217,11 @@ function _handleTouchEnd(event) {
         move: { x: 0, y: 0 },
         moveFlag: false
     }
+}
+
+function _drawDirectionText(context, direction)
+{
+	context.font = "30px Sans-Serif";
+	context.textAlign = "center";
+	context.fillText(direction.toUpperCase(), canvas.width/2, canvas.height/2); 
 }
