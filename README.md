@@ -1,4 +1,4 @@
 # simple_user_controller
-An example of simple user controller for 2d games
+A simple example for Event based object movement vs requestAnimationFrame based object movement. Note the smoothness of the object movement than their speed. 
 
 Check it out here : https://123survesh.github.io/simple_user_controller
